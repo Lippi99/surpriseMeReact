@@ -1,0 +1,67 @@
+import { Button } from "@nextui-org/react";
+import { useTranslation } from "react-i18next";
+
+const Header = () => {
+  const translation = useTranslation();
+
+  // const [isOpen, setIsOpen] = useState(false);
+
+  const isLogged = "authenticated";
+
+  const handleChangeTranslation = (lang: string) => {
+    translation.i18n.changeLanguage(lang || "en");
+  };
+
+  return (
+    <header className="h-28">
+      <div className="flex h-full justify-between items-center px-16 gap-4">
+        <a href="/">
+          <img
+            alt="logo"
+            className="w-16 h-16 rounded-full"
+            src="/icons/surpriseme_512_512.png"
+          />
+        </a>
+        <div className="flex gap-5 items-center">
+          {isLogged && (
+            <Button
+              // onPress={() => setIsOpen(true)}
+              size="lg"
+              variant="solid"
+              className="dark:text-white"
+            >
+              My Websites {/* Replace with your i18n translation */}
+            </Button>
+          )}
+          <button
+            aria-label="lang"
+            onClick={() => handleChangeTranslation("pt")}
+            type="button"
+            className="cursor-pointer"
+          >
+            <img
+              src="/images/locale/brazil.svg"
+              alt="Brazil"
+              className="w-8 h-38 object-cover"
+            />
+          </button>
+          <button
+            aria-label="lang"
+            onClick={() => handleChangeTranslation("en")}
+            type="button"
+            className="cursor-pointer"
+          >
+            <img
+              src="/images/locale/america.svg"
+              alt="America"
+              className="w-8 h-38 object-cover"
+            />
+          </button>
+        </div>
+      </div>
+      {/* <MyWebsites isOpen={isOpen} onUpdateIsOpen={setIsOpen} /> */}
+    </header>
+  );
+};
+
+export default Header;
