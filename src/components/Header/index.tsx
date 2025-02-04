@@ -1,10 +1,8 @@
-import { Button } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
+import MyWebsites from "../Mywebsites";
 
 const Header = () => {
   const translation = useTranslation();
-
-  // const [isOpen, setIsOpen] = useState(false);
 
   const isLogged = "authenticated";
 
@@ -23,16 +21,7 @@ const Header = () => {
           />
         </a>
         <div className="flex gap-5 items-center">
-          {isLogged && (
-            <Button
-              // onPress={() => setIsOpen(true)}
-              size="lg"
-              variant="solid"
-              className="dark:text-white"
-            >
-              My Websites {/* Replace with your i18n translation */}
-            </Button>
-          )}
+          {isLogged && <MyWebsites />}
           <button
             aria-label="lang"
             onClick={() => handleChangeTranslation("pt")}
@@ -59,7 +48,6 @@ const Header = () => {
           </button>
         </div>
       </div>
-      {/* <MyWebsites isOpen={isOpen} onUpdateIsOpen={setIsOpen} /> */}
     </header>
   );
 };

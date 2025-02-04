@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Accordion, AccordionItem } from "@nextui-org/react";
+import { Accordion, AccordionItem } from "@heroui/react";
 
 const Faq = () => {
   const { t } = useTranslation();

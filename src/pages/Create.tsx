@@ -9,20 +9,22 @@ import {
   Select,
   SelectItem,
   Textarea,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "react-router";
 import { z } from "zod";
+import { api } from "../services/api";
+import { useQuery } from "@tanstack/react-query";
+import { getPlans } from "../services/plan";
 
 const schema = z.object({
   plan: z.string().trim().nonempty({ message: "Plan is required" }),
   name: z.string().trim().min(1, { message: "Name is required" }),
-
   songUrl: z.string().trim().optional(),
   messages: z.array(
     z.object({
-      message: z.string().trim().nonempty({ message: "Digite uma mensagem!" }),
+      name: z.string().trim().nonempty({ message: "Digite uma mensagem!" }),
       image: z.string().optional(),
     })
   ),
@@ -35,6 +37,12 @@ export const Create = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { data: plans } = useQuery({
+    queryKey: ["plans"],
+    queryFn: getPlans,
+    refetchOnWindowFocus: false,
+  });
+
   const { setValue, control, getValues, register, handleSubmit, watch } =
     useForm<Schema>({
       resolver: zodResolver(schema),
@@ -43,9 +51,9 @@ export const Create = () => {
         name: "",
         songUrl: "",
         messages: [
-          { message: "", image: "" },
-          { message: "", image: "" },
-          { message: "", image: "" },
+          { name: "", image: "" },
+          { name: "", image: "" },
+          { name: "", image: "" },
         ],
       },
     });
@@ -55,31 +63,26 @@ export const Create = () => {
     name: "messages",
   });
 
-  const plans = [
-    { name: "Basic", key: "Basic" },
-    { name: "Premium", key: "Premium" },
-  ];
-
   const plan = watch("plan");
   const name = watch("name");
   const songUrl = watch("songUrl");
   const messages = watch("messages");
 
   const handleChangePlan = (plan: string) => {
-    if (plan === "Basic") {
+    if (plan === "2") {
       setValue("messages", [
-        { message: "", image: "" },
-        { message: "", image: "" },
-        { message: "", image: "" },
+        { name: "", image: "" },
+        { name: "", image: "" },
+        { name: "", image: "" },
       ]);
       setSearchParams({ plan: "Basic" });
     } else {
       setValue("messages", [
-        { message: "", image: "" },
-        { message: "", image: "" },
-        { message: "", image: "" },
-        { message: "", image: "" },
-        { message: "", image: "" },
+        { name: "", image: "" },
+        { name: "", image: "" },
+        { name: "", image: "" },
+        { name: "", image: "" },
+        { name: "", image: "" },
       ]);
       setSearchParams({ plan: "Premium" });
     }
@@ -101,35 +104,37 @@ export const Create = () => {
 
   const onSubmit = async (data: Schema) => {
     setIsSubmitting(true);
+    try {
+      const messagesWithBase64Images = await Promise.all(
+        data.messages.map(async (message) => {
+          const base64Image = message.image
+            ? await blobToBase64(message.image)
+            : null;
 
-    const messagesWithBase64Images = await Promise.all(
-      data.messages.map(async (message) => {
-        const base64Image = message.image
-          ? await blobToBase64(message.image)
-          : null;
+          return {
+            ...message,
+            image: "https://test.jpeg.com",
+          };
+        })
+      );
 
-        return {
-          ...message,
-          image: base64Image,
-        };
-      })
-    );
+      // Build the final payload
+      const payload = {
+        planId: Number(data.plan),
+        ...data,
+        messages: messagesWithBase64Images,
+      };
 
-    // Build the final payload
-    const payload = {
-      ...data,
-      messages: messagesWithBase64Images,
-    };
-
-    // Simulate submission
-    setTimeout(() => {
+      const response = await api.post("/checkout", payload);
+      if (response.data) {
+        // Simulate submission
+        window.location.href = response.data.url;
+      }
+    } catch (error: unknown) {
+      console.log("error", error);
+    } finally {
       setIsSubmitting(false);
-      alert("Form submitted!");
-    }, 2000);
-
-    // Display the payload for debugging
-    alert(JSON.stringify(payload, null, 2));
-    console.log(payload);
+    }
   };
 
   const formProps = {
@@ -142,6 +147,13 @@ export const Create = () => {
   return (
     <Layout>
       <title>Surprise4Me | Criar página personalizada</title>
+      <iframe
+        width="420"
+        height="315"
+        className="hidden"
+        src={songUrl?.replace("watch?v=", "embed/") + "?autoplay=1"}
+      ></iframe>
+
       <div className="py-[17px] px-14 lg:pr-0 lg:max-w-7xl m-auto">
         <h1 className="text-5xl font-bold">{t("createPage.title")}</h1>
         <span className="ml-1 mt-5 inline-block">
@@ -154,15 +166,17 @@ export const Create = () => {
             <div className="mb-8">
               <Select
                 {...register("plan")}
-                onChange={(e) => handleChangePlan(e.target.value)}
+                onSelectionChange={(e) =>
+                  handleChangePlan(e.currentKey as string)
+                }
                 size="md"
                 isRequired
                 errorMessage={" "}
                 label={t("createPage.choosePlan")}
-                items={plans}
+                items={plans?.data || []}
               >
-                {(plan: { name: string; key: string }) => (
-                  <SelectItem key={plan.key}>{plan.name}</SelectItem>
+                {(plan: { name: string; id: number }) => (
+                  <SelectItem key={plan.id}>{plan.name}</SelectItem>
                 )}
               </Select>
             </div>
@@ -193,7 +207,7 @@ export const Create = () => {
               <div key={field.id} className="mt-4">
                 <div className="mt-5">
                   <Controller
-                    name={`messages.${index}.message`}
+                    name={`messages.${index}.name`}
                     control={control}
                     render={({ field }) => (
                       <>
