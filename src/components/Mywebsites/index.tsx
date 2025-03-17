@@ -32,7 +32,8 @@ const MyWebsites = () => {
 
   const handleGoogleLoginSuccess = async () => {
     try {
-      window.location.href = "https://localhost:7272/v1/auth/google";
+      window.location.href =
+        "https://soxwyv6jkobuhtt6iyepsa7uzi0suyrv.lambda-url.sa-east-1.on.aws/v1/auth/google";
     } catch (error) {
       console.error("Login Failed:", error);
     }
