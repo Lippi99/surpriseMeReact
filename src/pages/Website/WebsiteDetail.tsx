@@ -3,9 +3,12 @@ import { api } from "../../services/api";
 import { useQuery } from "@tanstack/react-query";
 import Footer from "../../components/Footer";
 import Polaroid from "../../components/Polaroid";
+import EnableAudio from "../../components/EnableAudio";
+import { useState } from "react";
 
 const WebsiteDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [audioMuted, setAudioMuted] = useState(1);
 
   const { data, error } = useQuery<{
     name: string;
@@ -27,9 +30,20 @@ const WebsiteDetail = () => {
       <meta property="og:description" content={data?.name} />
 
       <main className="relative left-0 top-0 right-0 bottom-0 h-full pt-10">
+        {data?.songUrl !== "" && <EnableAudio setAudioMuted={setAudioMuted} />}
         <h1 className="text-6xl text-center mb-10">{data?.name}</h1>
 
-        {/* {linkUrlNotEmpty && <YoutubeMusic isDetail url={linkUrl || ''} />} */}
+        {data?.songUrl !== "" && (
+          <iframe
+            className="hidden"
+            width="420"
+            height="315"
+            src={
+              data?.songUrl.replace("watch?v=", "embed/").split("&")[0] +
+              `?autoplay=1&mute=${audioMuted}`
+            }
+          ></iframe>
+        )}
 
         <div className="max-w-md m-auto w-full flex flex-col items-center">
           {data?.messages?.map((message, index) => (

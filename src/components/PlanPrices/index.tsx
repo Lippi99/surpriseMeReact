@@ -18,9 +18,9 @@ const Plans = ({
 }: PlansProps) => {
   const handleSetPlanUrl = () => {
     if (mostPicked) {
-      onSetPlanUrl("/create?plan=Premium");
+      onSetPlanUrl("/create");
     } else {
-      onSetPlanUrl("/create?plan=Basic");
+      onSetPlanUrl("/create");
     }
   };
 

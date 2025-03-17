@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import MyWebsites from "../Mywebsites";
+import { Link } from "react-router";
 
 const Header = () => {
   const translation = useTranslation();
@@ -13,13 +14,14 @@ const Header = () => {
   return (
     <header className="h-28">
       <div className="flex h-full justify-between items-center px-16 gap-4">
-        <a href="/">
+        <Link to="/">
           <img
             alt="logo"
             className="w-16 h-16 rounded-full"
             src="/icons/surpriseme_512_512.png"
           />
-        </a>
+        </Link>
+
         <div className="flex gap-5 items-center">
           {isLogged && <MyWebsites />}
           <button

@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import "./i18n.ts";
@@ -14,7 +13,7 @@ import Cancel from "./pages/Cancel.tsx";
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <HeroUIProvider>
@@ -30,5 +29,5 @@ createRoot(document.getElementById("root")!).render(
         </HeroUIProvider>
       </BrowserRouter>
     </QueryClientProvider>
-  </StrictMode>
+
 );

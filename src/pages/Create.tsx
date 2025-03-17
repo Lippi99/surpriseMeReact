@@ -8,6 +8,7 @@ import {
   Input,
   Select,
   SelectItem,
+  SharedSelection,
   Textarea,
 } from "@heroui/react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -47,7 +48,7 @@ export const Create = () => {
     useForm<Schema>({
       resolver: zodResolver(schema),
       defaultValues: {
-        plan: searchParams.get("plan") || "Basic",
+        plan: searchParams.get("plan") || "",
         name: "",
         songUrl: "",
         messages: [
@@ -68,23 +69,16 @@ export const Create = () => {
   const songUrl = watch("songUrl");
   const messages = watch("messages");
 
-  const handleChangePlan = (plan: string) => {
-    if (plan === "2") {
-      setValue("messages", [
-        { name: "", image: "" },
-        { name: "", image: "" },
-        { name: "", image: "" },
-      ]);
-      setSearchParams({ plan: "Basic" });
-    } else {
-      setValue("messages", [
-        { name: "", image: "" },
-        { name: "", image: "" },
-        { name: "", image: "" },
-        { name: "", image: "" },
-        { name: "", image: "" },
-      ]);
-      setSearchParams({ plan: "Premium" });
+  const handleChangePlan = (plan: SharedSelection) => {
+    const option = JSON.parse(plan.currentKey as string);
+
+    const selectedPlan = plans?.data.find((p) => p.id === option);
+    if (option) {
+      setValue("plan", selectedPlan?.id.toString() || "");
+      setSearchParams({ plan: `${selectedPlan?.id}` });
+
+      const messagesCount = selectedPlan?.name === "Basic" ? 3 : 5;
+      setValue("messages", Array(messagesCount).fill({ name: "", image: "" }));
     }
   };
 
@@ -113,7 +107,8 @@ export const Create = () => {
 
           return {
             ...message,
-            image: "https://test.jpeg.com",
+            planId: plan,
+            image: base64Image,
           };
         })
       );
@@ -127,7 +122,6 @@ export const Create = () => {
 
       const response = await api.post("/checkout", payload);
       if (response.data) {
-        // Simulate submission
         window.location.href = response.data.url;
       }
     } catch (error: unknown) {
@@ -144,15 +138,21 @@ export const Create = () => {
     messages,
   };
 
+  function extractYouTubeURL(input: string) {
+    return input.replace("watch?v=", "embed/").split("&")[0] + "?autoplay=1";
+  }
+
   return (
     <Layout>
       <title>Surprise4Me | Criar página personalizada</title>
-      <iframe
-        width="420"
-        height="315"
-        className="hidden"
-        src={songUrl?.replace("watch?v=", "embed/") + "?autoplay=1"}
-      ></iframe>
+      {songUrl && (
+        <iframe
+          className="hidden"
+          width="420"
+          height="315"
+          src={extractYouTubeURL(songUrl as string)}
+        ></iframe>
+      )}
 
       <div className="py-[17px] px-14 lg:pr-0 lg:max-w-7xl m-auto">
         <h1 className="text-5xl font-bold">{t("createPage.title")}</h1>
@@ -166,22 +166,23 @@ export const Create = () => {
             <div className="mb-8">
               <Select
                 {...register("plan")}
-                onSelectionChange={(e) =>
-                  handleChangePlan(e.currentKey as string)
-                }
+                onSelectionChange={(e) => handleChangePlan(e)}
                 size="md"
                 isRequired
+                selectedKeys={plan}
                 errorMessage={" "}
                 label={t("createPage.choosePlan")}
                 items={plans?.data || []}
               >
                 {(plan: { name: string; id: number }) => (
-                  <SelectItem key={plan.id}>{plan.name}</SelectItem>
+                  <SelectItem value={plan.id} key={plan.id}>
+                    {plan.name}
+                  </SelectItem>
                 )}
               </Select>
             </div>
 
-            {searchParams.get("plan") === "Premium" ? (
+            {searchParams.get("plan") === "Premium" || plan === "7" ? (
               <div className="mb-8">
                 <label className="mb-2 block">{t("createPage.pickSong")}</label>
                 <Input

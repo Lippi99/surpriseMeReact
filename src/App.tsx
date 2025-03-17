@@ -5,15 +5,19 @@ import Layout from "./Layout";
 import Plans from "./components/PlanPrices";
 import CardSupport from "./components/CardSupport";
 import Faq from "./components/Faq";
-import { Link } from "react-router";
+
+import { PriceUsd } from "./constants/price";
+import { Link, useNavigate } from "react-router";
 function App() {
   const { t } = useTranslation();
+  const router = useNavigate();
 
-  const locale = "en";
 
-  const priceBasic = locale === "en" ? `$ 10` : `R$ 58`;
+  const price =PriceUsd
+
   function handleSetPlanUrl(url: string) {
-    return url;
+    router(url);
+    window.scrollTo(0, 0);
   }
   return (
     <Layout>
@@ -65,7 +69,7 @@ function App() {
           <Plans
             mostPicked={false}
             title={t("indexPage.sectionThree.basic.title")}
-            price={priceBasic as string}
+            price={price["basic"]}
             benefits={[
               t("indexPage.sectionThree.basic.descriptionOne"),
               t("indexPage.sectionThree.basic.descriptionTwo"),
@@ -76,7 +80,7 @@ function App() {
           <Plans
             mostPicked
             title={t("indexPage.sectionThree.premium.title")}
-            price={"R$ 58"}
+            price={price["premium"]}
             benefits={[
               t("indexPage.sectionThree.premium.descriptionOne"),
               t("indexPage.sectionThree.premium.descriptionTwo"),

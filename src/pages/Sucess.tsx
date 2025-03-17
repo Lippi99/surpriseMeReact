@@ -7,10 +7,10 @@ import {
 } from "@heroui/react";
 // Replace useParams with useSearchParams for query parameters
 import { QRCodeSVG } from "qrcode.react";
-import Confetti from 'react-confetti'
+import Confetti from "react-confetti";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../services/api";
-import { useEffect } from "react"; 
+import { useEffect } from "react";
 import { useParams, useSearchParams } from "react-router";
 
 const Success = () => {
@@ -18,8 +18,8 @@ const Success = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
 
-  const baseUrl = "http://localhost:3000";
-  
+  const baseUrl = window.location.origin;
+
   const sessionId = searchParams.get("sessionId");
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const Success = () => {
   const { data: website } = useQuery<{ data: [] }>({
     queryKey: ["website", id],
     queryFn: async () => (await api.get(`/websites/${id}`)).data,
-    enabled: !!id, 
+    enabled: !!id,
     refetchOnWindowFocus: false,
   });
 
@@ -53,17 +53,17 @@ const Success = () => {
   return (
     <main className="min-h-screen overflow-hidden">
       <title>Página sucesso!</title>
-    
-        <Confetti
-          initialVelocityX={2}
-          initialVelocityY={2}
-          numberOfPieces={100}
-          recycle
-          run
-          width={1228}
-          wind={0}
-        />
-      
+
+      <Confetti
+        initialVelocityX={2}
+        initialVelocityY={2}
+        numberOfPieces={100}
+        recycle
+        run
+        width={1228}
+        wind={0}
+      />
+
       <Modal
         className="-z-10"
         backdrop="transparent"
